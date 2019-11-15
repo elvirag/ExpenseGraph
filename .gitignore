@@ -1,2 +1,3 @@
 __pycache__/
 expenses_db.sqlite
+venv/

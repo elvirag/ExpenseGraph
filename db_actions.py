@@ -32,22 +32,35 @@ def create_categories_table():
 
 	cur.execute('pragma encoding')
 
-	cur.execute("""CREATE TABLE IF NOT EXISTS categories (
-	    Category_id INTEGER PRIMARY KEY,
-	    Name Varchar(256) NOT NULL UNIQUE,
-	    Explanation Varchar(512)
-	);
-	""")
-
-	conn.commit()
-
 	cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='{0}';""".format("categories"))
 
 	result = cur.fetchone()
+	print("result:" + str(result))
+
+	conn.commit()
+
+	cur.execute("""CREATE TABLE IF NOT EXISTS "categories" (
+	"Category_id"	INTEGER,
+	"Name"	Varchar(256) NOT NULL UNIQUE,
+	"Explanation"	Varchar(512),
+	PRIMARY KEY("Category_id")
+	);""")
+
+	conn.commit()
+
+	if result is None:
+		cur.execute("""INSERT INTO "categories" VALUES
+									(1,'Salary',''),
+									(2,'Rent',''),
+									(3,'Pets',''),
+									(4,'Bills',''),
+									(5,'Groceries',''),
+									(6,'Cleaning Supplies',''),
+									(7,'Restaurants','');
+					""")
+		conn.commit()
 
 	conn.close()
-
-	return result
 
 def prefill_categories_table():
 	pass
@@ -56,6 +69,9 @@ def prefill_categories_table():
 def create_expense(date, name, cost, category, means, pob, comments=""):
 	conn, cur = connect()
 
+	print("""INSERT INTO expenses (Date_purchase, Name, Cost, Category, Means, Buisness, Comments)
+		VALUES( "{}", "{}", {}, "{}", "{}", "{}", "{}");
+		""".format(date, name, cost, category, means, pob, comments))
 	cur.execute(
 		"""INSERT INTO expenses (Date_purchase, Name, Cost, Category, Means, Buisness, Comments)
 		VALUES( "{}", "{}", {}, "{}", "{}", "{}", "{}");
@@ -100,5 +116,4 @@ def get_categories():
 
 def init_db():
 	create_expenses_table()
-	if create_categories_table():
-		prefill_categories_table()
+	create_categories_table()
