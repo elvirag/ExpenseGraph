@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+
+<div align="center">
+	<h1>Expenses Table</h1>
+	{% if not expenses %}
+	<h3>There are no expenses yet. <a href="/add_expense">Click here</a> to add</h3>
+	{% else %}
+	<table>
+		<thead>
+		    <th>Date of Purchase</th>
+		    <th>Name</th>
+		    <th>Cost</th>
+		    <th>Category</th>
+		    <th>Means</th>
+		    <th>Buisness</th>
+		    <th>Comments</th>
+		</thead>
+		{% for expense in expenses %}
+		<tbody>
+		    <td>expense.date</td>
+		    <td>expense.name</td>
+		    <td>expense.cost</td>
+		    <td>expense.category</td>
+		    <td>expense.means</td>
+		    <td>expense.buisness</td>
+		    <td>expense.comments</td>
+		</tbody>
+		{% endfor %}
+	</table>
+	{% endif %}
+</div>
+
+
+{% endblock %}
