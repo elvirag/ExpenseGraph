@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 import xlrd
 
+import db_actions
+
 
 def return_sheet(filename="Expenses.xlsx"):
     # To open Workbook
@@ -21,3 +23,15 @@ def return_sheet(filename="Expenses.xlsx"):
         rows.append(row)
 
     return rows
+
+
+def export_excel(filename):
+    pass
+
+
+def import_excel(filename):
+    rows = return_sheet(filename)
+    for row in rows:
+        db_actions.create_expense(*row, '')
+
+    return str(len(rows)) + "rows were imported successfully"

@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 from flask_babel import Babel, gettext
 from werkzeug.utils import secure_filename
 
@@ -34,8 +34,8 @@ def upload_file():
         f = request.files['file']
         f.save(secure_filename(f.filename))
 
-        rows = excel_actions.return_sheet(f.filename)
-        return render_template('excel.html', rows=rows)
+        excel_actions.import_excel(f.filename)
+        return redirect(url_for('/'))
 
 
 @app.route('/add_expense', methods=['GET', 'POST'])

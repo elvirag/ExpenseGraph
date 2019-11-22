@@ -37,7 +37,6 @@ def create_categories_table():
     cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='{0}';""".format("categories"))
 
     result = cur.fetchone()
-    print("result:" + str(result))
 
     conn.commit()
 
@@ -68,11 +67,19 @@ def create_categories_table():
 def create_expense(date, name, cost, category, means, pob, comments=""):
     conn, cur = connect()
 
-    create_expense_str = """INSERT INTO expenses (Date_purchase, Name, Cost, Category, Means, Business, Comments)
-        VALUES( "{}", "{}", {}, "{}", "{}", "{}", "{}");
-        """.format(date, name, cost, category, means, pob, comments)
+    create_expense_str = """INSERT INTO expenses
+        VALUES( %(date)s, %(name)s, %(name)s, %(category)s, %(means)s, %(pob)s);
+        """
+    expense_dict = {
+        'date': date, 'name': name, 'cost': cost, 'category': category, 'means': means, 'pob': pob,
+    }
+    if comments:
+        create_expense_str = create_expense_str[-2] + ", %(comments)s);"
+        expense_dict['comments'] = comments
 
-    cur.execute(create_expense_str)
+    ans = create_expense_str % expense_dict
+    print(ans)
+    cur.execute(ans)
 
     conn.commit()
     conn.close()
