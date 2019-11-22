@@ -10,8 +10,13 @@
 	<h1>Expenses Table</h1>
 	{% if not expenses %}
 	<h3>There are no expenses yet. <a href="/add_expense">Click here</a> to add</h3>
+	<form action = "http://localhost:5000/uploader" method = "POST" 
+         enctype = "multipart/form-data">You can also upload a specific excel file here:
+         <input type = "file" name = "file" />
+         <input type = "submit"/>
+      </form>
 	{% else %}
-	<table>
+	<table class="table table-hover">
 		<thead>
 		    <th>Date of Purchase</th>
 		    <th>Name</th>
@@ -20,6 +25,7 @@
 		    <th>Means</th>
 		    <th>Buisness</th>
 		    <th>Comments</th>
+		    <th>Actions</th>
 		</thead>
 		{% for expense in expenses %}
 		<tbody>
@@ -30,6 +36,10 @@
 		    <td>{{ expense[5] }}</td>
 		    <td>{{ expense[6] }}</td>
 		    <td>{{ expense[7] }}</td>
+		    <td>
+		    	<button action="/delete_expense">Delete</button>
+		    	<button action="/update_expense">Update</button>
+		    </td>
 		</tbody>
 		{% endfor %}
 	</table>
