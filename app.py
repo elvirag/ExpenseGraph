@@ -9,11 +9,6 @@ app = Flask(__name__)
 babel = Babel(app)
 
 
-@babel.localeselector
-def get_locale():
-    return request.accept_languages.best_match(app.config['LANGUAGES'].keys())
-
-
 @app.route('/')
 def main():
     db_actions.init_db()
@@ -35,20 +30,14 @@ def upload_file():
         f.save(secure_filename(f.filename))
 
         excel_actions.import_excel(f.filename)
-        return redirect(url_for('/'))
+        return redirect(url_for('main'))
 
 
 @app.route('/add_expense', methods=['GET', 'POST'])
 def add_expense():
     if request.method == 'GET':
         categories = db_actions.get_categories()
-        means_types = [
-            gettext("Credit Card"),
-            gettext("Cash"),
-            gettext("Cheque"),
-            gettext("Bank Deposit"),
-            gettext("Salary")
-        ]
+        means_types = db_actions.get_means()
 
         return render_template('add_expense.html', categories=categories, means_types=means_types)
 
@@ -73,9 +62,12 @@ def edit_expense():
     pass
 
 
-@app.route('/delete_expense')
+@app.route('/delete_expense', methods=['DELETE'])
 def delete_expense():
-    pass
+    if request.method == 'DELETE':
+        db_actions.delete_expense()
+
+        return redirect(url_for('main'))
 
 
 @app.route('/add_category', methods=['POST'])

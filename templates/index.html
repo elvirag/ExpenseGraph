@@ -23,19 +23,19 @@
 		    <th>Cost</th>
 		    <th>Category</th>
 		    <th>Means</th>
-		    <th>Buisness</th>
+		    <th>Business</th>
 		    <th>Comments</th>
 		    <th>Actions</th>
 		</thead>
 		{% for expense in expenses %}
 		<tbody>
-		    <td>{{ expense[1] }}</td>
+			<td>{{ expense[0] }}</td>
+			<td>{{ expense[1] }}</td>
 		    <td>{{ expense[2] }}</td>
 		    <td>{{ expense[3] }}</td>
 		    <td>{{ expense[4] }}</td>
 		    <td>{{ expense[5] }}</td>
 		    <td>{{ expense[6] }}</td>
-		    <td>{{ expense[7] }}</td>
 		    <td>
 		    	<button action="/delete_expense">Delete</button>
 		    	<button action="/update_expense">Update</button>

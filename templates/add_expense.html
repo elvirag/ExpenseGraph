@@ -18,7 +18,7 @@ function addNewCategory() {
 	<div>Category: <input list="categories" name="category"><br>
 	<datalist id="categories">
 		{% for category in categories %}
-		<option value="{{ _(category[1]) }}" title="{{ _(category[2]) }}"></option>
+		<option value="{{ category[1] }}" title="{{ category[2] }}"></option>
 		{% endfor %}
 	</datalist>
 	<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#newCategory">
@@ -28,13 +28,13 @@ function addNewCategory() {
 		<datalist id="means_list">
 		<!-- <option><a href="/add_category">Add New Category</a></option> -->
 		{% for means_type in means_types %}
-		<option value="{{ _(means_type) }}"></option>
+		<option value="{{ means_type }}"></option>
 		{% endfor %}
 	</datalist>
-	Buisness: <input type="text" name="buisness" required><br>
-	<!-- TODO: autocomplete buisnesses -->
+	Business: <input type="text" name="business" required><br>
+	<!-- TODO: autocomplete businesses -->
 	Comments: <input type="text" name="comments"><br>
-  <input type="submit" value="_(Add Expense)">
+  <input type="submit" value="Add Expense">
 </form>
 
 <!-- Modal -->

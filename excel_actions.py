@@ -29,8 +29,19 @@ def export_excel(filename):
     pass
 
 
+def update_categories_table(categories):
+    for category in categories:
+        db_actions.add_category(category)
+
+
+def update_means_table(means):
+    for mean in means:
+        db_actions.add_means(mean)
+
+
 def import_excel(filename):
     rows = return_sheet(filename)
+
     for row in rows:
         db_actions.create_expense(*row, '')
 
