@@ -1,6 +1,6 @@
 import sqlite3
 
-EXPENSE_STRING = """
+SELECT_EXPENSE_BASE_QUERY = """
         SELECT 
           expenses.Expense_Id,
           expenses.Date_purchase, 
@@ -14,8 +14,7 @@ EXPENSE_STRING = """
           expenses 
           JOIN means ON expenses.means = means.Means_id 
           JOIN categories ON categories.Category_id = expenses.Category 
-          JOIN business ON business.Business_id = expenses.Business;
-    """
+          JOIN business ON business.Business_id = expenses.Business"""
 
 
 def connect():
@@ -30,16 +29,17 @@ def create_expenses_table():
 
     cur.execute('pragma encoding')
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS expenses (
-        Expense_id INTEGER PRIMARY KEY,
-        Date_purchase DATE NOT NULL,
-        Name Varchar(256) NOT NULL,
-        Cost REAL NOT NULL,
-        Category INTEGER NOT NULL,
-        Means INTEGER NOT NULL,
-        Business INTEGER NOT NULL,
-        Comments Varchar(1024)
-    );
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS expenses (
+            Expense_id INTEGER PRIMARY KEY,
+            Date_purchase DATE NOT NULL,
+            Name Varchar(256) NOT NULL,
+            Cost REAL NOT NULL,
+            Category INTEGER NOT NULL,
+            Means INTEGER NOT NULL,
+            Business INTEGER NOT NULL,
+            Comments Varchar(1024)
+        )
     """)
 
     conn.commit()
@@ -51,12 +51,14 @@ def create_categories_table():
 
     cur.execute('pragma encoding')
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS "categories" (
-    "Category_id"   INTEGER,
-    "Name"  Varchar(256) NOT NULL UNIQUE,
-    "Explanation"   Varchar(512),
-    PRIMARY KEY("Category_id")
-    );""")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "categories" (
+            "Category_id" INTEGER,
+            "Name" Varchar(256) NOT NULL UNIQUE,
+            "Explanation" Varchar(512),
+            PRIMARY KEY("Category_id")
+        )
+    """)
 
     conn.commit()
 
@@ -71,7 +73,7 @@ def create_expense(date, name, cost, category, means, pob, comments=""):
     pob_id = add_business(pob)
 
     create_expense_str = """INSERT INTO expenses (Date_purchase, Name, Cost, Category, Means, Business, Comments)
-                            VALUES(?, ?, ?, ?, ?, ?, ?);"""
+                            VALUES(?, ?, ?, ?, ?, ?, ?)"""
 
     expense_tuple = (date, name, cost, category_id, means_id, pob_id, comments)
 
@@ -88,7 +90,7 @@ def create_expense(date, name, cost, category, means, pob, comments=""):
 def get_expenses():
     conn, cur = connect()
 
-    cur.execute(EXPENSE_STRING)
+    cur.execute(SELECT_EXPENSE_BASE_QUERY)
 
     expenses = cur.fetchall()
 
@@ -108,8 +110,7 @@ def add_category(name, explanation=""):
     if category_id:
         return category_id[0]
 
-    cur.execute("""INSERT INTO categories (Name, Explanation)
-                    VALUES( ?, ?);""", (name, explanation))
+    cur.execute("""INSERT INTO categories (Name, Explanation) VALUES(?, ?)""", (name, explanation))
 
     category_id = cur.lastrowid
 
@@ -137,11 +138,13 @@ def create_means_table():
 
     cur.execute('pragma encoding')
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS "means" (
-    "Means_id"   INTEGER,
-    "Name"  Varchar(256) NOT NULL UNIQUE,
-    PRIMARY KEY("Means_id")
-    );""")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "means" (
+            "Means_id"   INTEGER,
+            "Name"  Varchar(256) NOT NULL UNIQUE,
+            PRIMARY KEY("Means_id")
+        )
+    """)
 
     conn.commit()
 
@@ -158,8 +161,7 @@ def add_means(name):
     if means_id:
         return means_id[0]
 
-    cur.execute("""INSERT INTO means (Name)
-                    VALUES( ?);""", (name,))
+    cur.execute("""INSERT INTO means (Name) VALUES(?)""", (name,))
 
     means_id = cur.lastrowid
 
@@ -191,11 +193,13 @@ def create_business_table():
 
     cur.execute('pragma encoding')
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS "business" (
-    "Business_id"   INTEGER,
-    "Name"  Varchar(256) NOT NULL UNIQUE,
-    PRIMARY KEY("Business_id")
-    );""")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "business" (
+            "Business_id" INTEGER,
+            "Name"  Varchar(256) NOT NULL UNIQUE,
+            PRIMARY KEY("Business_id")
+        )
+    """)
 
     conn.commit()
 
@@ -212,8 +216,7 @@ def add_business(name):
     if business_id:
         return business_id[0]
 
-    cur.execute("""INSERT INTO business (Name)
-                    VALUES( ?);""", (name,))
+    cur.execute("""INSERT INTO business (Name) VALUES( ?)""", (name,))
 
     business_id = cur.lastrowid
 
@@ -262,7 +265,7 @@ def update_expense(data):
 
     create_expense_str = """UPDATE expenses
                                 SET Date_purchase=?, Name=?, Cost=?, Category=?, Means=?, Business=?, Comments=?
-                                WHERE expenses.Expense_Id=?;"""
+                                WHERE expenses.Expense_Id=?"""
 
     expense_tuple = (
         expense.get("date"), expense.get("name"), expense.get("cost"), category_id, means_id, pob_id,
@@ -279,7 +282,7 @@ def update_expense(data):
 def get_expense(expense_id):
     conn, cur = connect()
 
-    exe_str = EXPENSE_STRING[:-6] + "\nWHERE expenses.Expense_Id={};".format(expense_id)
+    exe_str = SELECT_EXPENSE_BASE_QUERY + "\nWHERE expenses.Expense_Id={}".format(expense_id)
     cur.execute(exe_str)
 
     expense = cur.fetchone()

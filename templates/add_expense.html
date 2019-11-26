@@ -11,6 +11,7 @@ function addNewCategory() {
 	window.open('add_category.html');
 }
 
+
 </script>
 <form action="{{ url_for('add_expense') }}" method="POST">
     Date of Purchase: <input type="date" name="date"><br>
@@ -19,19 +20,22 @@ function addNewCategory() {
     <div>Category: <input list="categories" name="category"><br>
         <datalist id="categories">
             {% for category in categories %}
-            <option value="{{ category[1] }}" title="{{ category[2] }}"></option>
+            <option value="{{ category[1] }}"></option>
             {% endfor %}
         </datalist>
     </div>
     Means: <input list="means_list" name="means" required><br>
     <datalist id="means_list">
-        <!-- <option><a href="/add_category">Add New Category</a></option> -->
         {% for means_type in means_types %}
         <option value="{{ means_type }}"></option>
         {% endfor %}
     </datalist>
-    Business: <input type="text" name="business" required><br>
-    <!-- TODO: autocomplete businesses -->
+    Business: <input list="businesses" name="business" required><br>
+    <datalist id="businesses">
+        {% for business in businesses %}
+        <option value="{{ business }}"></option>
+        {% endfor %}
+    </datalist>
     Comments: <input type="text" name="comments"><br>
     <input type="submit" value="Add Expense">
 </form>
