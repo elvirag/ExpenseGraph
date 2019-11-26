@@ -16,6 +16,11 @@ def main():
     return render_template('index.html', expenses=expenses)
 
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
 @app.route('/excel')
 def excel():
     rows = excel_actions.return_sheet()
@@ -23,7 +28,7 @@ def excel():
     return render_template('excel.html', rows=rows)
 
 
-@app.route('/uploader', methods=['GET', 'POST'])
+@app.route('/excel_import', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         f = request.files['file']
@@ -38,8 +43,10 @@ def add_expense():
     if request.method == 'GET':
         categories = db_actions.get_categories()
         means_types = db_actions.get_means()
+        businesses = db_actions.get_businesses()
 
-        return render_template('add_expense.html', categories=categories, means_types=means_types)
+        return render_template('add_expense.html', categories=categories, means_types=means_types,
+                               businesses=businesses)
 
     elif request.method == 'POST':
         date = request.form.get('date')
@@ -57,11 +64,28 @@ def add_expense():
             return gettext("Your expense wasn't created :(")
 
 
-@app.route('/edit_expense')
-def edit_expense():
-    pass
+# TODO: need to do partial update, ans also add a message if expense is the same, via html.
+@app.route('/update_expense', methods=['POST'])
+def update_expense():
+    if request.method == 'POST':
+        if 'updated_expense' in request.form:
+            success = db_actions.update_expense(request.form)
+            if success:
+                return redirect(url_for('main'))
+            else:
+                return gettext("Your expense wasn't updated :(")
+        else:
+            expense_id = request.form['expense_to_update']
+            expense = db_actions.get_expense(expense_id)
+            categories = db_actions.get_categories()
+            means_types = db_actions.get_means()
+            businesses = db_actions.get_businesses()
+
+            return render_template('update_expense.html', expense=expense, categories=categories,
+                                   means_types=means_types, businesses=businesses)
 
 
+# TODO: Need to delete also businesses, means and categories - just check if something uses them, and if not, remove
 @app.route('/delete_expense', methods=['DELETE'])
 def delete_expense():
     if request.method == 'DELETE':

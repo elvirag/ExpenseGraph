@@ -1,5 +1,22 @@
 import sqlite3
 
+EXPENSE_STRING = """
+        SELECT 
+          expenses.Expense_Id,
+          expenses.Date_purchase, 
+          expenses.Name, 
+          expenses.Cost, 
+          categories.Name as Category, 
+          means.Name as Means, 
+          business.Name as Business, 
+          expenses.Comments 
+        FROM 
+          expenses 
+          JOIN means ON expenses.means = means.Means_id 
+          JOIN categories ON categories.Category_id = expenses.Category 
+          JOIN business ON business.Business_id = expenses.Business;
+    """
+
 
 def connect():
     conn = sqlite3.connect('expenses_db.sqlite')
@@ -71,21 +88,7 @@ def create_expense(date, name, cost, category, means, pob, comments=""):
 def get_expenses():
     conn, cur = connect()
 
-    cur.execute("""
-        SELECT 
-          expenses.Date_purchase, 
-          expenses.Name, 
-          expenses.Cost, 
-          categories.Name as Category, 
-          means.Name as Means, 
-          business.Name as Business, 
-          expenses.Comments 
-        FROM 
-          expenses 
-          JOIN means ON expenses.means = means.Means_id 
-          JOIN categories ON categories.Category_id = expenses.Category 
-          JOIN business ON business.Business_id = expenses.Business;
-    """)
+    cur.execute(EXPENSE_STRING)
 
     expenses = cur.fetchall()
 
@@ -171,10 +174,14 @@ def get_means():
 
     cur.execute('SELECT * FROM means')
 
-    means = cur.fetchall()
+    means_tuple = cur.fetchall()
+    means = []
 
     conn.commit()
     conn.close()
+
+    for mean_tuple in means_tuple:
+        means.append(mean_tuple[1])
 
     return means
 
@@ -216,17 +223,21 @@ def add_business(name):
     return business_id
 
 
-def get_business():
+def get_businesses():
     conn, cur = connect()
 
     cur.execute('SELECT * FROM business')
 
-    business = cur.fetchall()
+    businesses_tuple = cur.fetchall()
+    businesses = []
 
     conn.commit()
     conn.close()
 
-    return business
+    for business_tuple in businesses_tuple:
+        businesses.append(business_tuple[1])
+
+    return businesses
 
 
 def init_db():
@@ -238,3 +249,42 @@ def init_db():
 
 def delete_expense():
     return None
+
+
+# Make a patch type update - later
+def update_expense(data):
+    conn, cur = connect()
+
+    expense = dict(data)
+    category_id = add_category(expense.get("category"))
+    means_id = add_means(expense.get("means"))
+    pob_id = add_business(expense.get("pob"))
+
+    create_expense_str = """UPDATE expenses
+                                SET Date_purchase=?, Name=?, Cost=?, Category=?, Means=?, Business=?, Comments=?
+                                WHERE expenses.Expense_Id=?;"""
+
+    expense_tuple = (
+        expense.get("date"), expense.get("name"), expense.get("cost"), category_id, means_id, pob_id,
+        expense.get("comments"), expense.get("expense_id"))
+
+    result = cur.execute(create_expense_str, expense_tuple)
+
+    conn.commit()
+    conn.close()
+
+    return result.rowcount == 1
+
+
+def get_expense(expense_id):
+    conn, cur = connect()
+
+    exe_str = EXPENSE_STRING[:-6] + "\nWHERE expenses.Expense_Id={};".format(expense_id)
+    cur.execute(exe_str)
+
+    expense = cur.fetchone()
+
+    conn.commit()
+    conn.close()
+
+    return expense

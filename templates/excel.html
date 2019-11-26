@@ -7,15 +7,14 @@
 {% block body %}
 
 <table class="table table-hover">
-    <thead>
-    <th>Date of Purchase</th>
-    <th>Name</th>
-    <th>Cost</th>
-    <th>Category</th>
-    <th>Means</th>
-    <th>Business</th>
-    </thead>
-    <tbody>
+    <tr>
+        <th>Date of Purchase</th>
+        <th>Name</th>
+        <th>Cost</th>
+        <th>Category</th>
+        <th>Means</th>
+        <th>Business</th>
+    </tr>
     {% for row in rows %}
     <tr>
         <td>{{ row[0] }}</td>
@@ -26,7 +25,6 @@
         <td>{{ row[5] }}</td>
     </tr>
     {% endfor %}
-    </tbody>
 </table>
 
 
