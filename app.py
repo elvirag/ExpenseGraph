@@ -42,10 +42,10 @@ def upload_file():
 def add_expense():
     if request.method == 'GET':
         categories = db_actions.get_categories()
-        means_types = db_actions.get_means()
+        payment_types = db_actions.get_payment_types()
         businesses = db_actions.get_businesses()
 
-        return render_template('add_expense.html', categories=categories, means_types=means_types,
+        return render_template('add_expense.html', categories=categories, payment_types=payment_types,
                                businesses=businesses)
 
     elif request.method == 'POST':
@@ -53,11 +53,11 @@ def add_expense():
         name = request.form.get('name')
         cost = request.form.get('cost')
         category = request.form.get('category')
-        means = request.form.get('means')
+        payment_type = request.form.get('payment_type')
         business = request.form.get('business')
         comments = request.form.get('comments')
 
-        if db_actions.create_expense(date, name, cost, category, means, business, comments):
+        if db_actions.create_expense(date, name, cost, category, payment_type, business, comments):
             expenses = db_actions.get_expenses()
             return render_template('index.html', expenses=expenses)
         else:
@@ -78,11 +78,11 @@ def update_expense():
             expense_id = request.form['expense_to_update']
             expense = db_actions.get_expense(expense_id)
             categories = db_actions.get_categories()
-            means_types = db_actions.get_means()
+            payment_types = db_actions.get_payment_types()
             businesses = db_actions.get_businesses()
 
             return render_template('update_expense.html', expense=expense, categories=categories,
-                                   means_types=means_types, businesses=businesses)
+                                   payment_types=payment_types, businesses=businesses)
 
 
 # TODO: Need to delete also businesses, means and categories - just check if something uses them, and if not, remove
@@ -107,11 +107,6 @@ def add_category():
 
 @app.route('/edit_category')
 def edit_category():
-    pass
-
-
-@app.route('/delete_category')
-def delete_category():
     pass
 
 

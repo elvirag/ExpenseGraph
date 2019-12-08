@@ -34,9 +34,9 @@ def update_categories_table(categories):
         db_actions.add_category(category)
 
 
-def update_means_table(means):
-    for mean in means:
-        db_actions.add_means(mean)
+def update_payment_types_table(payment_types):
+    for payment_type in payment_types:
+        db_actions.add_payment_type(payment_type)
 
 
 def import_excel(filename):

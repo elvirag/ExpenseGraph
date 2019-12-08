@@ -18,10 +18,10 @@
             {% endfor %}
         </datalist>
     </div>
-    Means: <input list="means_list" name="means" required value="{{expense[5]}}"><br>
-    <datalist id="means_list">
-        {% for means_type in means_types %}
-        <option value="{{ means_type }}"></option>
+    Payment Type: <input list="payment_types_list" name="payment_type" required value="{{expense[5]}}"><br>
+    <datalist id="payment_types_list">
+        {% for payment_type in payment_types %}
+        <option value="{{ payment_type }}"></option>
         {% endfor %}
     </datalist>
     Business: <input list="businesses" name="pob" value="{{expense[6]}}" required><br>
