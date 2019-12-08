@@ -46,25 +46,6 @@ def create_expenses_table():
     conn.close()
 
 
-def create_categories_table():
-    conn, cur = connect()
-
-    cur.execute('pragma encoding')
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS "categories" (
-            "Category_id" INTEGER,
-            "Name" Varchar(256) NOT NULL UNIQUE,
-            "Explanation" Varchar(512),
-            PRIMARY KEY("Category_id")
-        )
-    """)
-
-    conn.commit()
-
-    conn.close()
-
-
 def create_expense(date, name, cost, category, payment_type, pob, comments=""):
     conn, cur = connect()
 
@@ -98,6 +79,76 @@ def get_expenses():
     conn.close()
 
     return expenses
+
+
+def get_expense(expense_id):
+    conn, cur = connect()
+
+    exe_str = SELECT_EXPENSE_BASE_QUERY + "\nWHERE expenses.Expense_Id={}".format(expense_id)
+    cur.execute(exe_str)
+
+    expense = cur.fetchone()
+
+    conn.commit()
+    conn.close()
+
+    return expense
+
+
+def delete_expense(expense_id):
+    conn, cur = connect()
+
+    delete_expense_str = """DELETE FROM expenses
+                            WHERE expenses.Expense_id=?"""
+
+    result = cur.execute(delete_expense_str, (expense_id,))
+
+    conn.commit()
+    conn.close()
+
+    return result.rowcount == 1
+
+
+def update_expense(data):
+    conn, cur = connect()
+
+    expense = dict(data)
+    category_id = add_category(expense.get("category"))
+    payment_type_id = add_payment_type(expense.get("payment_type"))
+    pob_id = add_business(expense.get("pob"))
+
+    create_expense_str = """UPDATE expenses
+                                SET Date_purchase=?, Name=?, Cost=?, Category=?, Payment_Type=?, Business=?, Comments=?
+                                WHERE expenses.Expense_Id=?"""
+
+    expense_tuple = (
+        expense.get("date"), expense.get("name"), expense.get("cost"), category_id, payment_type_id, pob_id,
+        expense.get("comments"), expense.get("expense_id"))
+
+    result = cur.execute(create_expense_str, expense_tuple)
+
+    conn.commit()
+    conn.close()
+
+    return result.rowcount == 1
+
+
+def create_categories_table():
+    conn, cur = connect()
+
+    cur.execute('pragma encoding')
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "categories" (
+            "Category_id" INTEGER,
+            "Name" Varchar(256) NOT NULL UNIQUE,
+            "Explanation" Varchar(512),
+            PRIMARY KEY("Category_id")
+        )
+    """)
+
+    conn.commit()
+    conn.close()
 
 
 def add_category(name, explanation=""):
@@ -147,7 +198,6 @@ def create_payment_type_table():
     """)
 
     conn.commit()
-
     conn.close()
 
 
@@ -202,7 +252,6 @@ def create_business_table():
     """)
 
     conn.commit()
-
     conn.close()
 
 
@@ -248,46 +297,3 @@ def init_db():
     create_categories_table()
     create_payment_type_table()
     create_business_table()
-
-
-def delete_expense():
-    return None
-
-
-# Make a patch type update - later
-def update_expense(data):
-    conn, cur = connect()
-
-    expense = dict(data)
-    category_id = add_category(expense.get("category"))
-    payment_type_id = add_payment_type(expense.get("payment_type"))
-    pob_id = add_business(expense.get("pob"))
-
-    create_expense_str = """UPDATE expenses
-                                SET Date_purchase=?, Name=?, Cost=?, Category=?, Payment_Type=?, Business=?, Comments=?
-                                WHERE expenses.Expense_Id=?"""
-
-    expense_tuple = (
-        expense.get("date"), expense.get("name"), expense.get("cost"), category_id, payment_type_id, pob_id,
-        expense.get("comments"), expense.get("expense_id"))
-
-    result = cur.execute(create_expense_str, expense_tuple)
-
-    conn.commit()
-    conn.close()
-
-    return result.rowcount == 1
-
-
-def get_expense(expense_id):
-    conn, cur = connect()
-
-    exe_str = SELECT_EXPENSE_BASE_QUERY + "\nWHERE expenses.Expense_Id={}".format(expense_id)
-    cur.execute(exe_str)
-
-    expense = cur.fetchone()
-
-    conn.commit()
-    conn.close()
-
-    return expense

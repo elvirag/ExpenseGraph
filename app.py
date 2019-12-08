@@ -64,7 +64,6 @@ def add_expense():
             return gettext("Your expense wasn't created :(")
 
 
-# TODO: need to do partial update, ans also add a message if expense is the same, via html.
 @app.route('/update_expense', methods=['POST'])
 def update_expense():
     if request.method == 'POST':
@@ -85,13 +84,15 @@ def update_expense():
                                    payment_types=payment_types, businesses=businesses)
 
 
-# TODO: Need to delete also businesses, means and categories - just check if something uses them, and if not, remove
-@app.route('/delete_expense', methods=['DELETE'])
+@app.route('/delete_expense', methods=['POST'])
 def delete_expense():
-    if request.method == 'DELETE':
-        db_actions.delete_expense()
+    expense_id = request.form['expense_to_delete']
+    success = db_actions.delete_expense(expense_id)
 
+    if success:
         return redirect(url_for('main'))
+    else:
+        return gettext("Your expense (id:" + expense_id + ") wasn't deleted :(")
 
 
 @app.route('/add_category', methods=['POST'])
