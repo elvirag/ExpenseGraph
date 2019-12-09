@@ -16,6 +16,9 @@
         <input type="submit"/>
     </form>
     {% else %}
+    <form action="{{ url_for('add_expense') }}" method="get">
+            <input type=submit value="Add Expense">
+    </form>
     <table class="table table-hover">
         <tr>
             <th>Date of Purchase</th>
