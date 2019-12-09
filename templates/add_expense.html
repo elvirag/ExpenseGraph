@@ -26,7 +26,7 @@ function addNewCategory() {
             {% endfor %}
         </datalist>
     </div>
-    Payment Type: <input list="payment_types_list" name="payment_types" required><br>
+    Payment Type: <input list="payment_types_list" name="payment_type" required><br>
     <datalist id="payment_types_list">
         {% for payment_type in payment_types %}
         <option value="{{ payment_type }}"></option>
