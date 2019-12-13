@@ -28,7 +28,7 @@ def excel():
     return render_template('excel.html', rows=rows)
 
 
-@app.route('/excel_import', methods=['GET', 'POST'])
+@app.route('/excel_import', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
         f = request.files['file']

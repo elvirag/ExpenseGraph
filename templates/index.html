@@ -10,7 +10,7 @@
     <h1>Expenses Table</h1>
     {% if not expenses %}
     <h3>There are no expenses yet. <a href="/add_expense">Click here</a> to add</h3>
-    <form action="http://localhost:5000/excel_import" method="POST"
+    <form action="excel_import" method="POST"
           enctype="multipart/form-data">You can also upload a specific excel file here:
         <input type="file" name="file"/>
         <input type="submit"/>
