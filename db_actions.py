@@ -1,24 +1,28 @@
-import sqlite3
+import psycopg2
 
 SELECT_EXPENSE_BASE_QUERY = """
         SELECT 
-          expenses.Expense_Id,
-          expenses.Date_purchase, 
-          expenses.Name, 
-          expenses.Cost, 
-          categories.Name as Category, 
-          Payment_Type.Name as Payment_Type, 
-          business.Name as Business, 
-          expenses.Comments 
+          exp_.Expense_Id,
+          exp_.Date_purchase, 
+          exp_.Name, 
+          exp_.Cost, 
+          cat."Name" as Category, 
+          pt."Name" as Payment_Type, 
+          bn."Name" as Business, 
+          exp_.Comments 
         FROM 
-          expenses 
-          JOIN Payment_Type ON expenses.Payment_Type = Payment_Type.payment_type_id 
-          JOIN categories ON categories.Category_id = expenses.Category 
-          JOIN business ON business.Business_id = expenses.Business"""
+          expenses exp_
+          JOIN "Payment_Type" pt ON exp_.Payment_Type = pt.payment_type_id 
+          JOIN categories cat ON cat."Category_id" = exp_.Category
+          JOIN business bn ON bn."Business_id" = exp_.Business"""
 
 
 def connect():
-    conn = sqlite3.connect('expenses_db.sqlite')
+    conn = psycopg2.connect(user="postgres",
+                            password="admin",
+                            host="127.0.0.1",
+                            port="5432",
+                            database="postgres")
     cur = conn.cursor()
 
     return conn, cur
@@ -27,11 +31,9 @@ def connect():
 def create_expenses_table():
     conn, cur = connect()
 
-    cur.execute('pragma encoding')
-
     cur.execute("""
         CREATE TABLE IF NOT EXISTS expenses (
-            Expense_id INTEGER PRIMARY KEY,
+            Expense_id SERIAL PRIMARY KEY,
             Date_purchase DATE NOT NULL,
             Name Varchar(256) NOT NULL,
             Cost REAL NOT NULL,
@@ -54,24 +56,26 @@ def create_expense(date, name, cost, category, payment_type, pob, comments=""):
     pob_id = add_business(pob)
 
     create_expense_str = """INSERT INTO expenses (Date_purchase, Name, Cost, Category, Payment_Type, Business, Comments)
-                            VALUES(?, ?, ?, ?, ?, ?, ?)"""
-
+                            VALUES(%s, %s, %s, %s, %s, %s, %s)"""
     expense_tuple = (date, name, cost, category_id, payment_type_id, pob_id, comments)
 
     cur.execute(create_expense_str, expense_tuple)
-
-    expense_id = cur.lastrowid
-
     conn.commit()
+
+    cur.execute("""SELECT max(Expense_id) FROM expenses""")
+    conn.commit()
+
+    expense_id = cur.fetchone()
+
     conn.close()
 
-    return expense_id
+    return expense_id[0]
 
 
 def get_expenses():
     conn, cur = connect()
 
-    cur.execute(SELECT_EXPENSE_BASE_QUERY)
+    cur.execute(SELECT_EXPENSE_BASE_QUERY + "\nORDER BY exp_.Expense_Id ASC")
 
     expenses = cur.fetchall()
 
@@ -84,7 +88,7 @@ def get_expenses():
 def get_expense(expense_id):
     conn, cur = connect()
 
-    exe_str = SELECT_EXPENSE_BASE_QUERY + "\nWHERE expenses.Expense_Id={}".format(expense_id)
+    exe_str = SELECT_EXPENSE_BASE_QUERY + "\nWHERE exp_.Expense_id={}\nORDER BY exp_.Expense_Id ASC".format(expense_id)
     cur.execute(exe_str)
 
     expense = cur.fetchone()
@@ -99,14 +103,14 @@ def delete_expense(expense_id):
     conn, cur = connect()
 
     delete_expense_str = """DELETE FROM expenses
-                            WHERE expenses.Expense_id=?"""
+                            WHERE Expense_id=%s"""
 
-    result = cur.execute(delete_expense_str, (expense_id,))
+    cur.execute(delete_expense_str, (expense_id,))
 
     conn.commit()
     conn.close()
 
-    return result.rowcount == 1
+    return cur.rowcount == 1
 
 
 def update_expense(data):
@@ -118,29 +122,28 @@ def update_expense(data):
     pob_id = add_business(expense.get("pob"))
 
     create_expense_str = """UPDATE expenses
-                                SET Date_purchase=?, Name=?, Cost=?, Category=?, Payment_Type=?, Business=?, Comments=?
-                                WHERE expenses.Expense_Id=?"""
+                                SET Date_purchase=%s, Name=%s, Cost=%s, Category=%s, Payment_Type=%s, Business=%s,
+                                Comments=%s
+                                WHERE expenses.Expense_Id=%s"""
 
     expense_tuple = (
         expense.get("date"), expense.get("name"), expense.get("cost"), category_id, payment_type_id, pob_id,
         expense.get("comments"), expense.get("expense_id"))
 
-    result = cur.execute(create_expense_str, expense_tuple)
+    cur.execute(create_expense_str, expense_tuple)
 
     conn.commit()
     conn.close()
 
-    return result.rowcount == 1
+    return cur.rowcount == 1
 
 
 def create_categories_table():
     conn, cur = connect()
 
-    cur.execute('pragma encoding')
-
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "categories" (
-            "Category_id" INTEGER,
+            "Category_id" SERIAL,
             "Name" Varchar(256) NOT NULL UNIQUE,
             "Explanation" Varchar(512),
             PRIMARY KEY("Category_id")
@@ -154,21 +157,25 @@ def create_categories_table():
 def add_category(name, explanation=""):
     conn, cur = connect()
 
-    cur.execute("""SELECT Category_id FROM categories WHERE Name=?""", (name,))
+    select_category_id_str = """SELECT "Category_id" FROM categories WHERE "Name"=%s"""
+
+    cur.execute(select_category_id_str, (name,))
     conn.commit()
 
     category_id = cur.fetchone()
     if category_id:
         return category_id[0]
 
-    cur.execute("""INSERT INTO categories (Name, Explanation) VALUES(?, ?)""", (name, explanation))
-
-    category_id = cur.lastrowid
-
+    cur.execute("""INSERT INTO categories ("Name", "Explanation") VALUES(%s, %s)""", (name, explanation))
     conn.commit()
+
+    cur.execute(select_category_id_str, (name,))
+    category_id = cur.fetchone()
+    conn.commit()
+
     conn.close()
 
-    return category_id
+    return category_id[0]
 
 
 def get_categories():
@@ -187,11 +194,9 @@ def get_categories():
 def create_payment_type_table():
     conn, cur = connect()
 
-    cur.execute('pragma encoding')
-
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "Payment_Type" (
-            "payment_type_id"   INTEGER,
+            "payment_type_id" SERIAL,
             "Name"  Varchar(256) NOT NULL UNIQUE,
             PRIMARY KEY("payment_type_id")
         )
@@ -204,27 +209,32 @@ def create_payment_type_table():
 def add_payment_type(name):
     conn, cur = connect()
 
-    cur.execute("""SELECT payment_type_id FROM Payment_Type WHERE Name=?""", (name,))
+    select_payment_type_str: str = """SELECT payment_type_id FROM "Payment_Type" WHERE "Name"=%s"""
+
+    cur.execute(select_payment_type_str, (name,))
     conn.commit()
 
     payment_type_id = cur.fetchone()
     if payment_type_id:
         return payment_type_id[0]
 
-    cur.execute("""INSERT INTO Payment_Type (Name) VALUES(?)""", (name,))
-
-    payment_type_id = cur.lastrowid
-
+    cur.execute("""INSERT INTO "Payment_Type" ("Name") VALUES(%s)""", (name,))
     conn.commit()
+
+    cur.execute(select_payment_type_str, (name,))
+    conn.commit()
+
+    payment_type_id = cur.fetchone()
+
     conn.close()
 
-    return payment_type_id
+    return payment_type_id[0]
 
 
 def get_payment_types():
     conn, cur = connect()
 
-    cur.execute('SELECT * FROM Payment_Type')
+    cur.execute('SELECT * FROM "Payment_Type"')
 
     payment_types_tuple = cur.fetchall()
     payment_types = []
@@ -241,11 +251,9 @@ def get_payment_types():
 def create_business_table():
     conn, cur = connect()
 
-    cur.execute('pragma encoding')
-
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "business" (
-            "Business_id" INTEGER,
+            "Business_id" SERIAL,
             "Name"  Varchar(256) NOT NULL UNIQUE,
             PRIMARY KEY("Business_id")
         )
@@ -258,21 +266,25 @@ def create_business_table():
 def add_business(name):
     conn, cur = connect()
 
-    cur.execute("""SELECT Business_id FROM business WHERE Name=?""", (name,))
+    select_buisness_id_str = """SELECT "Business_id" FROM business WHERE "Name"=%s"""
+
+    cur.execute(select_buisness_id_str, (name,))
     conn.commit()
 
     business_id = cur.fetchone()
     if business_id:
         return business_id[0]
 
-    cur.execute("""INSERT INTO business (Name) VALUES( ?)""", (name,))
-
-    business_id = cur.lastrowid
-
+    cur.execute("""INSERT INTO business ("Name") VALUES( %s) RETURNING "Business_id" """, (name,))
     conn.commit()
+
+    cur.execute(select_buisness_id_str, (name,))
+    conn.commit()
+    business_id = cur.fetchone()
+
     conn.close()
 
-    return business_id
+    return business_id[0]
 
 
 def get_businesses():
@@ -293,7 +305,7 @@ def get_businesses():
 
 
 def init_db():
-    create_expenses_table()
     create_categories_table()
     create_payment_type_table()
     create_business_table()
+    create_expenses_table()
