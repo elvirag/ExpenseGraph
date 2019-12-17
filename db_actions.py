@@ -1,5 +1,13 @@
 import psycopg2
 
+from flask import Flask
+
+app = Flask(__name__)
+if app.config["ENV"] == "production":
+    app.config.from_object("config.ProductionConfig")
+else:
+    app.config.from_object("config.DevelopmentConfig")
+
 SELECT_EXPENSE_BASE_QUERY = """
         SELECT 
           exp_.Expense_Id,
@@ -18,11 +26,12 @@ SELECT_EXPENSE_BASE_QUERY = """
 
 
 def connect():
-    conn = psycopg2.connect(user="postgres",
-                            password="admin",
-                            host="127.0.0.1",
-                            port="5432",
-                            database="postgres")
+    conn = psycopg2.connect(
+                            user=app.config["DB_USERNAME"],
+                            password=app.config["DB_PASSWORD"],
+                            host=app.config["HOST_NAME"],
+                            port=app.config["DB_PORT"],
+                            dbname=app.config["DB_NAME"])
     cur = conn.cursor()
 
     return conn, cur

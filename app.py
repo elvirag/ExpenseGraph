@@ -6,7 +6,6 @@ import db_actions
 import excel_actions
 
 app = Flask(__name__)
-babel = Babel(app)
 
 
 @app.route('/')
@@ -112,4 +111,4 @@ def edit_category():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
