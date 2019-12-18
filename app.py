@@ -2,17 +2,17 @@ from flask import Flask, request, render_template, redirect, url_for
 from flask_babel import Babel, gettext
 from werkzeug.utils import secure_filename
 
-import db_actions
 import excel_actions
+import expenses
+import db_actions
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def main():
-    db_actions.init_db()
-    expenses = db_actions.get_expenses()
-    return render_template('index.html', expenses=expenses)
+    expenses_data = expenses.get_expenses()
+    return render_template('index.html', expenses=expenses_data)
 
 
 @app.route('/login')
@@ -48,17 +48,9 @@ def add_expense():
                                businesses=businesses)
 
     elif request.method == 'POST':
-        date = request.form.get('date')
-        name = request.form.get('name')
-        cost = request.form.get('cost')
-        category = request.form.get('category')
-        payment_type = request.form.get('payment_type')
-        business = request.form.get('business')
-        comments = request.form.get('comments')
-
-        if db_actions.create_expense(date, name, cost, category, payment_type, business, comments):
-            expenses = db_actions.get_expenses()
-            return render_template('index.html', expenses=expenses)
+        if expenses.create_expense(request.form):
+            expenses_data = expenses.get_expenses()
+            return render_template('index.html', expenses=expenses_data)
         else:
             return gettext("Your expense wasn't created :(")
 
@@ -108,6 +100,9 @@ def add_category():
 @app.route('/edit_category')
 def edit_category():
     pass
+
+
+# TODO: add delete category, display only non active categories
 
 
 if __name__ == "__main__":
