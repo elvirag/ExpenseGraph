@@ -7,52 +7,54 @@
 {% block body %}
 
 <div align="center">
-    <h1>Expenses Table</h1>
-    {% if not expenses %}
-    <h3>There are no expenses yet. <a href="/add_expense">Click here</a> to add</h3>
-    <form action="excel_import" method="POST"
-          enctype="multipart/form-data">You can also upload a specific excel file here:
-        <input type="file" name="file"/>
-        <input type="submit"/>
-    </form>
-    {% else %}
-    <form action="{{ url_for('add_expense') }}" method="get">
-            <input type=submit value="Add Expense">
-    </form>
-    <table class="table table-hover">
-        <tr>
-            <th>Date of Purchase</th>
-            <th>Name</th>
-            <th>Cost</th>
-            <th>Category</th>
-            <th>Payment Type</th>
-            <th>Business</th>
-            <th>Comments</th>
-            <th>Actions</th>
-        </tr>
-        {% for expense in expenses %}
-        <tr>
-            <td>{{ expense[1] }}</td>
-            <td>{{ expense[2] }}</td>
-            <td>{{ expense[3] }}</td>
-            <td>{{ expense[4] }}</td>
-            <td>{{ expense[5] }}</td>
-            <td>{{ expense[6] }}</td>
-            <td>{{ expense[7] }}</td>
-            <td>
-                <form action="{{ url_for('update_expense') }}" method="post">
-                    <input type=hidden value="{{ expense[0] }}" name=expense_to_update>
-                    <input type=submit value="Update">
-                </form>
-                <form action="{{ url_for('delete_expense') }}" method="post">
-                    <input type=hidden value="{{ expense[0] }}" name=expense_to_delete>
-                    <input type=submit value="Delete">
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
+	<h1>Expenses Table</h1>
+	{% if not expenses %}
+	<h3>There are no expenses yet. <a href="/add_expense">Click here</a> to add</h3>
+	<form action="excel_import" method="POST"
+		  enctype="multipart/form-data">You can also upload a specific excel file here:
+		<input type="file" name="file"/>
+		<input type="submit"/>
+	</form>
+	{% else %}
+	<form action="{{ url_for('add_expense') }}" method="get">
+		<input type=submit value="Add Expense">
+	</form>
+	<table class="table table-hover">
+		<tr>
+			<th>Date of Purchase</th>
+			<th>Date of Billing</th>
+			<th>Name</th>
+			<th>Cost</th>
+			<th>Category</th>
+			<th>Payment Type</th>
+			<th>Business</th>
+			<th>Comments</th>
+			<th>Actions</th>
+		</tr>
+		{% for expense in expenses %}
+		<tr>
+			<td>{{ expense.date_purchase }}</td>
+			<td>{{ expense.date_billed }}</td>
+			<td>{{ expense.name }}</td>
+			<td>{{ expense.cost }}</td>
+			<td>{{ expense.category }}</td>
+			<td>{{ expense.payment_type }}</td>
+			<td>{{ expense.business }}</td>
+			<td>{{ expense.comments }}</td>
+			<td>
+				<form action="{{ url_for('update_expense') }}" method="post">
+					<input type=hidden value="{{ expense.expense_id }}" name=expense_to_update>
+					<input type=submit value="Update">
+				</form>
+				<form action="{{ url_for('delete_expense') }}" method="post">
+					<input type=hidden value="{{ expense.expense_id }}" name=expense_to_delete>
+					<input type=submit value="Delete">
+				</form>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
 </div>
 
 

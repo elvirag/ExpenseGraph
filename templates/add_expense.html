@@ -11,32 +11,35 @@ function addNewCategory() {
 	window.open('add_category.html');
 }
 
+
+
 </script>
 <form action="{{ url_for('add_expense') }}" method="POST">
-    Date of Purchase: <input type="date" name="date_purchase"><br>
-    Name: <input type="text" name="name"><br>
-    Cost: <input type="number" step="0.01" name="cost"><br>
-    <div>Category: <input list="categories" name="category"><br>
-        <datalist id="categories">
-            {% for category in categories %}
-            <option value="{{ category[1] }}"></option>
-            {% endfor %}
-        </datalist>
-    </div>
-    Payment Type: <input list="payment_types_list" name="payment_type" required><br>
-    <datalist id="payment_types_list">
-        {% for payment_type in payment_types %}
-        <option value="{{ payment_type }}"></option>
-        {% endfor %}
-    </datalist>
-    Business: <input list="businesses" name="business" required><br>
-    <datalist id="businesses">
-        {% for business in businesses %}
-        <option value="{{ business }}"></option>
-        {% endfor %}
-    </datalist>
-    Comments: <input type="text" name="comments"><br>
-    <input type="submit" value="Add Expense">
+	Date of Purchase: <input type="date" name="date_purchase"><br>
+	Date of Billing (Defaults to date of purchase): <input type="date" name="date_billing"><br>
+	Name: <input type="text" name="name"><br>
+	Cost: <input type="number" step="0.01" name="cost"><br>
+	<div>Category: <input list="categories" name="category"><br>
+		<datalist id="categories">
+			{% for category in categories %}
+			<option value="{{ category[1] }}"></option>
+			{% endfor %}
+		</datalist>
+	</div>
+	Payment Type: <input list="payment_types_list" name="payment_type" required><br>
+	<datalist id="payment_types_list">
+		{% for payment_type in payment_types %}
+		<option value="{{ payment_type }}"></option>
+		{% endfor %}
+	</datalist>
+	Business: <input list="businesses" name="business" required><br>
+	<datalist id="businesses">
+		{% for business in businesses %}
+		<option value="{{ business }}"></option>
+		{% endfor %}
+	</datalist>
+	Comments: <input type="text" name="comments"><br>
+	<input type="submit" value="Add Expense">
 </form>
 
 {% endblock %}

@@ -6,43 +6,43 @@ import db_actions
 
 
 def return_sheet(filename="Expenses.xlsx"):
-    # To open Workbook
-    wb = xlrd.open_workbook(filename, encoding_override="utf-8")
-    sheet = wb.sheet_by_name("פירוט הוצאות מדוקדק (אפליקציה)")
+	# To open Workbook
+	wb = xlrd.open_workbook(filename, encoding_override="utf-8")
+	sheet = wb.sheet_by_name("פירוט הוצאות מדוקדק (אפליקציה)")
 
-    rows = []
+	rows = []
 
-    for i in range(1, sheet.nrows):
-        row = []
-        date_value = sheet.cell(i, 0).value
-        if date_value == '':
-            break
-        row.append((datetime(1899, 12, 31) + timedelta(days=int(date_value) - 1)).replace(microsecond=0).date())
-        for j in range(1, 6):
-            row.append(sheet.cell(i, j).value)
-        rows.append(row)
+	for i in range(1, sheet.nrows):
+		row = []
+		date_value = sheet.cell(i, 0).value
+		if date_value == '':
+			break
+		row.append((datetime(1899, 12, 31) + timedelta(days=int(date_value) - 1)).replace(microsecond=0).date())
+		for j in range(1, 6):
+			row.append(sheet.cell(i, j).value)
+		rows.append(row)
 
-    return rows
+	return rows
 
 
 def export_excel(filename):
-    pass
+	pass
 
 
 def update_categories_table(categories):
-    for category in categories:
-        db_actions.add_category(category)
+	for category in categories:
+		db_actions.add_category(category)
 
 
 def update_payment_types_table(payment_types):
-    for payment_type in payment_types:
-        db_actions.add_payment_type(payment_type)
+	for payment_type in payment_types:
+		db_actions.add_payment_type(payment_type)
 
 
 def import_excel(filename):
-    rows = return_sheet(filename)
+	rows = return_sheet(filename)
 
-    for row in rows:
-        db_actions.create_expense(*row, '')
+	for row in rows:
+		db_actions.create_expense(*row, '')
 
-    return str(len(rows)) + "rows were imported successfully"
+	return str(len(rows)) + "rows were imported successfully"

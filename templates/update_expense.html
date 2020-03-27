@@ -7,31 +7,32 @@
 {% block body %}
 
 <form action="{{ url_for('update_expense') }}" method="POST" name="update_expense">
-    <input type="hidden" name="expense_id" value="{{expense[0]}}">
-    Date of Purchase: <input type="date" name="date" value="{{expense[1]}}"><br>
-    Name: <input type="text" name="name" value="{{expense[2]}}"><br>
-    Cost: <input type="number" step="0.01" name="cost" value="{{expense[3]}}"><br>
-    <div>Category: <input list="categories" name="category" value="{{expense[4]}}"><br>
-        <datalist id="categories">
-            {% for category in categories %}
-            <option value="{{ category[1] }}"></option>
-            {% endfor %}
-        </datalist>
-    </div>
-    Payment Type: <input list="payment_types_list" name="payment_type" required value="{{expense[5]}}"><br>
-    <datalist id="payment_types_list">
-        {% for payment_type in payment_types %}
-        <option value="{{ payment_type }}"></option>
-        {% endfor %}
-    </datalist>
-    Business: <input list="businesses" name="pob" value="{{expense[6]}}" required><br>
-    <datalist id="businesses">
-        {% for business in businesses %}
-        <option value="{{ business }}"></option>
-        {% endfor %}
-    </datalist>
-    Comments: <input type="text" name="comments" value="{{expense[7]}}"><br>
-    <input type="submit" name="updated_expense" value="Update Expense">
+	<input type="hidden" name="expense_id" value="{{expense.expense_id}}">
+	Date of Purchase: <input type="date" name="date_purchase" value="{{expense.date_purchase}}"><br>
+	Date of Billing: <input type="date" name="date_billed" value="{{expense.date_billed}}"><br>
+	Name: <input type="text" name="name" value="{{expense.name}}"><br>
+	Cost: <input type="number" step="0.01" name="cost" value="{{expense.cost}}"><br>
+	<div>Category: <input list="categories" name="category" value="{{expense.category}}"><br>
+		<datalist id="categories">
+			{% for category in categories %}
+			<option value="{{ category[1] }}"></option>
+			{% endfor %}
+		</datalist>
+	</div>
+	Payment Type: <input list="payment_types_list" name="payment_type" required value="{{expense.payment_type}}"><br>
+	<datalist id="payment_types_list">
+		{% for payment_type in payment_types %}
+		<option value="{{ payment_type }}"></option>
+		{% endfor %}
+	</datalist>
+	Business: <input list="businesses" name="business" value="{{expense.business}}" required><br>
+	<datalist id="businesses">
+		{% for business in businesses %}
+		<option value="{{ business }}"></option>
+		{% endfor %}
+	</datalist>
+	Comments: <input type="text" name="comments" value="{{expense.comments}}"><br>
+	<input type="submit" name="updated_expense" value="Update Expense">
 </form>
 
 {% endblock %}
