@@ -2,7 +2,7 @@ flask
 Flask-Babel
 xlrd
 werkzeug
-setuptools>=40.3.0
+setuptools>=82.0.1
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
